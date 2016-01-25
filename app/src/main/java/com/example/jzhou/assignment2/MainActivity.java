@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,9 +20,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public SensorManager mSensorManager;
     public Sensor mMagnetometer, mAccelerometer;
-    public double x, y , z, magnetometer_val;
-    public double Acc_x, Acc_y, Acc_z, Acc_val;
+    public double x, y , z, magnetometer_val, mag_valori;
     public  static TextView txt;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +44,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         txt = (TextView) findViewById(R.id.Magnetometer_txt);
-        magnetometer_val = mMagnetometer.getPower();
-        txt.setText(magnetometer_val+" origin");
-
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mag_valori = mMagnetometer.getPower();
+        txt.setText(mag_valori+" origin");
+        mag_valori = magnetometer_val;
+        //mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
     }
 
@@ -75,11 +76,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-           x = event.values[0];
-           y = event.values[1];
-           z = event.values[2];
-           magnetometer_val = Math.sqrt(x*x + y*y + z*z);
-           txt.setText("Magnetometer value is "+ x);
+        Sensor sensor = event.sensor;
+        if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            //TODO: get values
+            x = event.values[0];
+            y = event.values[1];
+            z = event.values[2];
+            magnetometer_val = Math.sqrt(x*x + y*y + z*z);
+            txt.setText("Magnetometer value is " + magnetometer_val);
+            if (magnetometer_val - mag_valori > 1) {
+            Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+            // Vibrate for 500 milliseconds
+            v.vibrate(500);
+         }
+            mag_valori = magnetometer_val;
+        }
+//
+//           Mag_Array[i] = magnetometer_val;
+//        if (i>0&&Mag_Array[i]-Mag_Array[i-1]>1) {
+//            Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+//            // Vibrate for 500 milliseconds
+//            v.vibrate(500);
+//        }
+//        i++;
     }
 
     @Override
